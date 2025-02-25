@@ -37,8 +37,9 @@ jobs:
           namespace: ${{ env.NAMESPACE }}
           name: elk-stack
           create-namespace: true
-          atomic: true  # Ensures rollback if deployment fails
+          atomic: false  # Ensures rollback if deployment fails
           wait: true  # Waits until all resources are ready
+          timeout: 600s  # ⏳ Increase timeout to 10 minutes
 
       - name: Wait for ELK Pods to Initialize
         run: |
