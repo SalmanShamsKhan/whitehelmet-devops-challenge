@@ -178,3 +178,122 @@ This `terraform.yaml` workflow enables **repeatable, automated AWS infrastructur
 - The **AWS backend should use DynamoDB** for **state locking**.
 
 🚀 **This implementation ensures a scalable, automated AWS infrastructure setup using Terraform & GitHub Actions!** 🚀
+
+
+# **ELK Stack Deployment - GitHub Actions Workflow**
+
+## **Overview**
+This workflow **`elk.yaml`** is responsible for deploying the **ELK Stack (Elasticsearch, Logstash, Kibana)** on an **AWS EKS cluster**. It automates the process using **Helm**, a package manager for Kubernetes.
+
+### **Real-World Implementation vs. Assignment Implementation**
+| **Aspect**            | **Real-World Best Practice**  | **Assignment Implementation** |
+|-----------------------|-----------------------------|--------------------------------|
+| **Repository Structure** | Separate `app-repo` for deployment. | Single repository for both infrastructure and deployment. |
+| **Triggering Mechanism** | Deployment triggered by a **CI/CD pipeline** upon merging to `main`. | Manual trigger (`workflow_dispatch`). |
+| **Helm Chart Management** | Managed via **Helm repository** (e.g., `chartmuseum`). | Local Helm charts (`helm/whitehelmetcharts`). |
+| **Namespace Management** | Managed separately for each environment (dev, staging, prod). | Single `elk` namespace used. |
+
+---
+
+## **Workflow Breakdown**
+
+### **1️⃣ Checkout Repository**
+```yaml
+- name: Checkout Repository
+  uses: actions/checkout@v4
+```
+Retrieves the latest deployment code.
+
+### **2️⃣ Configure AWS Credentials**
+```yaml
+- name: Configure AWS Credentials
+  uses: aws-actions/configure-aws-credentials@v1
+  with:
+    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    aws-region: ${{ env.AWS_REGION }}
+```
+Configures AWS credentials to interact with **EKS and Helm**.
+
+### **3️⃣ Verify AWS Identity**
+```yaml
+- name: Verify AWS Credentials
+  run: aws sts get-caller-identity
+```
+Ensures AWS credentials are valid.
+
+### **4️⃣ Install `kubectl` for Kubernetes**
+```yaml
+- name: Install kubectl
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y kubectl
+```
+Installs **kubectl**, which is required for Kubernetes management.
+
+### **5️⃣ Update kubeconfig for AWS EKS**
+```yaml
+- name: Configure kubectl for AWS EKS
+  run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+```
+Updates the **Kubeconfig file** to allow interaction with the EKS cluster.
+
+### **6️⃣ Wait for Resources**
+```yaml
+- name: Wait for Resources
+  run: sleep 30
+```
+Waits for the cluster to stabilize before deploying the ELK stack.
+
+### **7️⃣ Deploy ELK Stack using Helm**
+```yaml
+- name: Deploy ELK Stack using Helm
+  run: |
+    kubectl config view
+    helm upgrade --install elk-stack helm/whitehelmetcharts --namespace ${{ env.NAMESPACE }} --create-namespace
+```
+- **Helm** is used to deploy the ELK stack (`helm upgrade --install`).
+- The deployment uses **Helm charts stored in `helm/whitehelmetcharts`**.
+- If the namespace `elk` does not exist, it is created.
+
+### **8️⃣ Verify Kubernetes Services**
+```yaml
+- name: Verify kubectl configuration
+  run: | 
+    sleep 30
+    kubectl get svc -n ${{ env.NAMESPACE }}
+```
+- Waits for **pods** and services to be ready.
+- Retrieves the **services running in the ELK namespace**.
+
+---
+
+## **Expected Outcome**
+When this workflow is executed:
+1. **Helm deploys the ELK stack** into **EKS**.
+2. **Elasticsearch, Kibana, and Logstash pods start running**.
+3. **AWS Load Balancer is provisioned**, allowing external access.
+
+---
+
+## **Deployment Verification Screenshots**
+### **1️⃣ ELK Services Running**
+![ELK Services Running](elk-services-running.png)  
+*All ELK services (Elasticsearch, Logstash, Kibana) are deployed and running inside Kubernetes.*
+
+### **2️⃣ Kubernetes Pods**
+![Kubernetes Pods](pods.png)  
+*Displays all pods running in the `elk` namespace.*
+
+### **3️⃣ Elasticsearch Pod Details**
+![Elasticsearch Pod](elasticsearch-pod-details.png)  
+*Elasticsearch is running inside the cluster.*
+
+### **5️⃣ Kibana UI (Port 5601)**
+![Kibana UI](kibana-port-5601.png)  
+*Kibana is accessible on port 5601 through the AWS Load Balancer.*
+
+---
+
+## **Conclusion**
+The **ELK deployment workflow (`elk.yaml`)** ensures a **scalable, repeatable, and automated deployment** of the **ELK Stack** on **AWS EKS**. This is a crucial step in **log aggregation and monitoring** in cloud environments. 🚀
