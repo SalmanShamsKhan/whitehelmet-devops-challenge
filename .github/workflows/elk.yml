@@ -4,9 +4,9 @@ on:
   workflow_dispatch:  # Manual trigger
 
 env:
-  AWS_REGION: us-east-2
-  EKS_CLUSTER: whitehelmet-eks  # ✅ Updated cluster name
-  NAMESPACE: elk  # Kubernetes namespace for ELK stack
+  AWS_REGION: us-east-2  # ✅ Your AWS region
+  EKS_CLUSTER: whitehelmet-eks  # ✅ Your EKS cluster name
+  NAMESPACE: elk  # ✅ ELK namespace
 
 jobs:
   deploy-elk:
@@ -23,28 +23,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Update kubeconfig for EKS
+      - name: Verify AWS Credentials
+        run: aws sts get-caller-identity
+
+      - name: Install kubectl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kubectl
+
+      - name: Configure kubectl for AWS EKS
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
 
-      - name: Deploy ELK Stack using Helm (via Bitovi)
-        uses: bitovi/github-actions-deploy-eks-helm@v1.2.8
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-          cluster-name: ${{ env.EKS_CLUSTER }}
-          chart-path: helm/whitehelmetcharts  # ✅ Correct: Points to Helm chart root
-          namespace: ${{ env.NAMESPACE }}
-          name: elk-stack
-          create-namespace: true
-          atomic: false  # Ensures rollback if deployment fails
-          wait: true  # Waits until all resources are ready
-          timeout: 600s  # ⏳ Increase timeout to 10 minutes
+      - name: Wait for Resources
+        run: sleep 30
 
-      - name: Wait for ELK Pods to Initialize
+      - name: Deploy ELK Stack using Helm
         run: |
-          echo "Waiting for ELK pods to be ready..."
-          sleep 30
+          kubectl config view
+          helm upgrade --install elk-stack helm/whitehelmetcharts --namespace ${{ env.NAMESPACE }} --create-namespace
 
-      - name: Verify ELK Deployment
-        run: kubectl get svc -n $NAMESPACE
+      - name: Verify kubectl configuration
+        run: | 
+          sleep 30
+          kubectl get svc -n ${{ env.NAMESPACE }}
