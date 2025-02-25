@@ -1,0 +1,49 @@
+name: Deploy ELK Stack on EKS
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+env:
+  AWS_REGION: us-east-2
+  EKS_CLUSTER: whitehelmet-eks  # ✅ Updated cluster name
+  NAMESPACE: elk  # Kubernetes namespace for ELK stack
+
+jobs:
+  deploy-elk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+
+      - name: Deploy ELK Stack using Helm (via Bitovi)
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.8
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: ${{ env.EKS_CLUSTER }}
+          chart-path: helm/whitehelmetcharts  # ✅ Correct: Points to Helm chart root
+          namespace: ${{ env.NAMESPACE }}
+          name: elk-stack
+          create-namespace: true
+          atomic: true  # Ensures rollback if deployment fails
+          wait: true  # Waits until all resources are ready
+
+      - name: Wait for ELK Pods to Initialize
+        run: |
+          echo "Waiting for ELK pods to be ready..."
+          sleep 30
+
+      - name: Verify ELK Deployment
+        run: kubectl get svc -n $NAMESPACE
