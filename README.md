@@ -3,6 +3,29 @@
 ## **Overview**
 This repository contains the **Infrastructure as Code (IAC) setup** for deploying an **AWS EKS cluster** using **Terraform**. The deployment process is automated using **GitHub Actions**, and the workflow file **`terraform.yaml`** handles the provisioning of AWS resources.
 
+
+## **GitHub Actions Workflow Screenshots**  
+Below are the screenshots of the GitHub Actions execution for the **Terraform IAC deployment**:
+
+### **Terraform Execution Steps**  
+
+#### **1️⃣ Terraform Initialization & Plan Execution**
+![Terraform Init & Plan](iac-githubactions1.png)  
+*Terraform is initialized and prepares the execution plan.*
+
+#### **2️⃣ Terraform Plan Validation**
+![Terraform Plan Validation](iac-githubactions2.png)  
+*Validation of the Terraform Plan before applying changes.*
+
+#### **3️⃣ Terraform Apply Execution**
+![Terraform Apply Execution](iac-githubactions3.png)  
+*Terraform apply is executed to provision AWS resources.*
+
+#### **4️⃣ AWS EKS Cluster & Kubernetes Configurations**
+![AWS EKS Cluster Deployment](iac-githubactions4.png)  
+*EKS Cluster is deployed, and the Kubernetes configurations are updated.*
+
+
 ## **Real-World Implementation vs. Assignment Implementation**
 
 | **Aspect**            | **Real-World Best Practice**  | **Assignment Implementation** |
