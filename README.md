@@ -135,6 +135,37 @@ When this workflow is executed:
 2. **An EKS cluster is created** along with required IAM roles.
 3. **ALB Ingress Controller is deployed**, making it possible to route external traffic.
 
+
+## **Infrastructure Deployment Verification**  
+After the successful execution of the **Terraform IAC workflow**, the following AWS resources were provisioned.
+
+### **1️⃣ Virtual Private Cloud (VPC)**
+![AWS VPC Setup](vpc.png)  
+*A dedicated VPC was created to isolate the Kubernetes cluster.*
+
+### **2️⃣ Subnet Configuration**
+![AWS Subnet Configuration](subnet.png)  
+*Subnets were configured to allow communication between cluster components.*
+
+### **3️⃣ NAT Gateway for Internet Access**
+![AWS NAT Gateway](natgateway.png)  
+*NAT Gateway was provisioned to allow outbound traffic from private subnets.*
+
+### **4️⃣ AWS EKS Cluster Creation**
+![AWS EKS Cluster](eks-cluster.png)  
+*EKS cluster was successfully created and registered.*
+
+### **5️⃣ Kubernetes Ingress Controller (ALB)**
+![Ingress ALB](ingress-alb-external-communication.png)  
+*An AWS Application Load Balancer (ALB) was created for external communication.*
+
+### **6️⃣ Kubernetes Ingress Resource**
+![Ingress Configuration](ingress.png)  
+*Ingress rules were set up to route external traffic to services inside the cluster.*
+
+
+With the **Terraform IAC workflow**, the entire infrastructure—including **VPC, EKS, ALB Ingress, and the ELK stack**—was successfully deployed on AWS. This setup allows for a scalable and automated cloud environment, integrating **GitOps principles for seamless infrastructure management.** 🚀
+
 ## **Next Steps: Deploying Applications**
 After this Terraform workflow completes, the **ELK Stack Deployment** workflow (`elk-deployment.yaml`) can be triggered to:
 - Deploy **Elasticsearch, Kibana, and Logstash** into the EKS cluster.
