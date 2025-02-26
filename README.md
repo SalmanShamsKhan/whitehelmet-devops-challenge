@@ -194,6 +194,23 @@ This workflow **`elk.yaml`** is responsible for deploying the **ELK Stack (Elast
 | **Namespace Management** | Managed separately for each environment (dev, staging, prod). | Single `elk` namespace used. |
 
 ---
+### **GitHub Actions Workflow Execution**
+
+The deployment of the ELK stack on **AWS EKS** is executed through **GitHub Actions**. Below are the captured screenshots of the **CI/CD pipeline in action**:
+
+### **1️⃣ GitHub Actions - Workflow Start**
+![Deploy to EKS - Step 1](deploy-to-eks-githubactions1.png)  
+*GitHub Actions workflow is triggered manually (`workflow_dispatch`) to deploy ELK to EKS.*
+
+### **2️⃣ GitHub Actions - Deployment Progress**
+![Deploy to EKS - Step 2](deploy-to-eks-githubactions2.png)  
+*The pipeline executes `terraform apply`, provisions the EKS cluster, and starts deploying ELK components.*
+
+### **3️⃣ GitHub Actions - Successful Deployment**
+![Deploy to EKS - Step 3](deploy-to-eks-githubactions3.png)  
+*ELK deployment completes successfully, and Kubernetes services become accessible.*
+
+These images provide a clear **visual representation** of the **GitHub Actions automation process** used to deploy ELK on AWS EKS. 🚀
 
 ## **Workflow Breakdown**
 
