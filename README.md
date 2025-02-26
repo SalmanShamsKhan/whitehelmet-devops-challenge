@@ -167,7 +167,7 @@ After the successful execution of the **Terraform IAC workflow**, the following 
 With the **Terraform IAC workflow**, the entire infrastructure—including **VPC, EKS, ALB Ingress, and the ELK stack**—was successfully deployed on AWS. This setup allows for a scalable and automated cloud environment, integrating **GitOps principles for seamless infrastructure management.** 🚀
 
 ## **Next Steps: Deploying Applications**
-After this Terraform workflow completes, the **ELK Stack Deployment** workflow (`elk-deployment.yaml`) can be triggered to:
+After this Terraform workflow completes, the **ELK Stack Deployment** workflow (`elk.yaml`) can be triggered to:
 - Deploy **Elasticsearch, Kibana, and Logstash** into the EKS cluster.
 - Configure **Helm charts** for monitoring and logging.
 
